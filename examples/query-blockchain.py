@@ -4,7 +4,7 @@ import os, sys
 from twisted.internet import reactor
 
 from obelisk.util import to_btc
-
+from obelisk import MAX_UINT32
 ####################################################
 # Testing Code
 height = 0
@@ -34,9 +34,10 @@ def print_history(ec, history, address):
     for row in history:
         o_hash, o_index, o_height, value, s_hash, s_index, s_height = row
 
-        print "+", to_btc(value), age(height - o_height), 'confirms'
+        print "%s %s %s %s" % ("+", to_btc(value), age(height - o_height), 'confirms')
         if s_index != MAX_UINT32:
-            print "-", to_btc(value), age(height - s_height), 'confirms'
+            s_height = 0 if s_height is None else s_height
+            print "%s %s %s %s" %( "-", to_btc(value), age(height - s_height), 'confirms')
 
 def bootstrap_address(address):
     def print_history_address(ec, history):
@@ -53,20 +54,21 @@ def poll_latest(client):
     def last_height_fetched(ec, height):
         client.fetch_block_header(height, header_fetched)
     def header_fetched(ec, header):
-        print "Last:", header
+        print "Last:", header.encode("hex")
     client.fetch_last_height(last_height_fetched)
     reactor.callLater(20, poll_latest, client)
 
 if __name__ == '__main__':
-    c = obelisk.ObeliskOfLightClient('tcp://85.25.198.97:8081')
-    #c.fetch_last_height(print_height)
+    c = obelisk.ObeliskOfLightClient("tcp://obelisk-testnet.airbitz.co:9091")
+    c.fetch_last_height(print_height)
     #blk_hash = "000000000000000471988cc24941335b" \
     #           "91d35d646971b7de682b4236dc691919".decode("hex")
     #assert len(blk_hash) == 32
     #c.fetch_block_header(blk_hash, print_blk_header)
     #c.fetch_block_header(270778, print_blk_header)
 
-    addresses = ['1Evy47MqD82HGx6n1KHkHwBgCwbsbQQT8m', '1GUUpMm899Tr1w5mMvwnXcxbs77fmspTVC']
+#    addresses = ['1Evy47MqD82HGx6n1KHkHwBgCwbsbQQT8m', '1GUUpMm899Tr1w5mMvwnXcxbs77fmspTVC']
+    addresses = ["mypM96wu5GNp3GKQVZNbNjHszaw3vkyb6t",]
     if os.path.exists('addresses.txt'):
         f = open('addresses.txt')
         addresses = map(lambda s: s.strip(), f.readlines())

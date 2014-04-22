@@ -27,7 +27,10 @@ class ObeliskPubSubClient(obelisk.ObeliskOfLightClient):
 
 
 if __name__ == '__main__':
-    c = ObeliskPubSubClient('tcp://85.25.198.97:9091', 'tcp://85.25.198.97:9093', 'tcp://85.25.198.97:9094')
+    args = (
+            'tcp://85.25.198.97:9091', 'tcp://85.25.198.97:9093', 'tcp://85.25.198.97:9094',
+        )
+    c = ObeliskPubSubClient(*args)
     reactor.run()
 
 
