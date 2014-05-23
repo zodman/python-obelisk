@@ -14,6 +14,7 @@ mainnet_chain = ChainParameters(0xd9b4bef9, 0x00, 0x05, 0x80, 8333)
 ENABLE_TESTNET = os.environ.get("ENABLE_TESTNET", False)
 
 if ENABLE_TESTNET:
+    print "testnet"
     chain = testnet_chain
 else:
     chain = mainnet_chain

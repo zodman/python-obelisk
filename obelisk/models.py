@@ -30,6 +30,9 @@ class BlockHeader:
     def __repr__(self):
         return '<BlockHeader %s>' % (self.hash.encode("hex"),)
 
+class Block:
+    pass
+
 class OutPoint(object):
     def __init__(self):
         self.hash = None

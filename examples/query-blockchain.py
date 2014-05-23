@@ -2,7 +2,7 @@ import obelisk
 import os, sys
 
 from twisted.internet import reactor
-
+from obelisk.serialize import deser_data
 from obelisk.util import to_btc
 from obelisk import MAX_UINT32
 ####################################################
@@ -18,6 +18,7 @@ def print_height(ec, data):
     height = data
 
 def print_blk_header(ec, header):
+    header = deser_data('blockchain.fetch_block_header',header)
     print 'version', header.version
     print 'previous block hash', header.previous_block_hash.encode("hex")
     print 'merkle', header.merkle.encode("hex")
@@ -29,8 +30,6 @@ def print_blk_header(ec, header):
 def print_history(ec, history, address):
     global height
     print 'history', address, len(history)
-    if not '--full' in sys.argv:
-        return
     for row in history:
         o_hash, o_index, o_height, value, s_hash, s_index, s_height = row
 
@@ -60,15 +59,17 @@ def poll_latest(client):
 
 if __name__ == '__main__':
     c = obelisk.ObeliskOfLightClient("tcp://obelisk-testnet.airbitz.co:9091")
+#    c = obelisk.ObeliskOfLightClient("tcp://obelisk.unsystem.net:9091")
     c.fetch_last_height(print_height)
     #blk_hash = "000000000000000471988cc24941335b" \
     #           "91d35d646971b7de682b4236dc691919".decode("hex")
     #assert len(blk_hash) == 32
     #c.fetch_block_header(blk_hash, print_blk_header)
-    #c.fetch_block_header(270778, print_blk_header)
+    c.fetch_block_header(270778, print_blk_header)
 
 #    addresses = ['1Evy47MqD82HGx6n1KHkHwBgCwbsbQQT8m', '1GUUpMm899Tr1w5mMvwnXcxbs77fmspTVC']
-    addresses = ["mypM96wu5GNp3GKQVZNbNjHszaw3vkyb6t",]
+    #addresses = ["mypM96wu5GNp3GKQVZNbNjHszaw3vkyb6t",]
+    addresses = ["miiDWtK8gJvZPen6nf3987aJ28VRj8Yujy","19TVp7iN6FjSQJTA6DNS9nfauR6PM3Mb8N"]
     if os.path.exists('addresses.txt'):
         f = open('addresses.txt')
         addresses = map(lambda s: s.strip(), f.readlines())

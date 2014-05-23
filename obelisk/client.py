@@ -27,7 +27,7 @@ class ObeliskOfLightClient(ClientBase):
     valid_messages = ['fetch_block_header', 'fetch_history', 'subscribe',
         'fetch_last_height', 'fetch_transaction', 'fetch_spend',
         'fetch_transaction_index', 'fetch_block_transaction_hashes',
-        'fetch_block_height', 'fetch_stealth', 'update', 'renew']
+        'fetch_block_height', 'fetch_stealth', 'update', 'renew', 'validate',]
 
     subscribed = 0
     # Command implementations
@@ -94,7 +94,6 @@ class ObeliskOfLightClient(ClientBase):
 
         # prepare parameters
         data = struct.pack('B', address_version)    # address version
-        print "history for", address, address_version, from_height
         data += address_hash[::-1]                  # address
         data += struct.pack('<I', from_height)      # from_height
 
@@ -149,7 +148,19 @@ class ObeliskOfLightClient(ClientBase):
         assert len(data) == 9
         self.send_command('blockchain.fetch_stealth', data, cb)
 
+    def validate_transaction(self, tx_hash, cb):
+        data = serialize.ser_hash(tx_hash)
+        self.send_command("transaction_pool.validate", data, cb)
+
     # receive handlers
+
+    def _on_validate(self, data):
+        error = unpack_error(data)
+        print (error, data)
+        tx = data[4:]
+        return (error, tx)
+
+
     def _on_fetch_block_header(self, data):
         error = unpack_error(data)
         assert len(data[4:]) == 80
@@ -160,6 +171,7 @@ class ObeliskOfLightClient(ClientBase):
         error = unpack_error(data)
         # parse results
         rows = self.unpack_table("<32sIIQ32sII", data, 4)
+        print rows
         history = []
         for row in rows:
             o_hash, o_index, o_height, value, s_hash, s_index, s_height = row
@@ -171,7 +183,6 @@ class ObeliskOfLightClient(ClientBase):
                 s_height = None
             history.append(
                 (o_hash, o_index, o_height, value, s_hash, s_index, s_height))
-        print "history", history, data, "xx", error
         return (error, history)
 
     def _on_fetch_last_height(self, data):
@@ -246,4 +257,5 @@ class ObeliskOfLightClient(ClientBase):
         if not self.subscribed%1000:
             print "Renew ok", self.subscribed
         return (error, True)
+
 

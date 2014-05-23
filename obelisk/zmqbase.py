@@ -59,7 +59,6 @@ class ClientBase(object):
         self.send(command, SNDMORE) # command
         self.send(struct.pack('I', tx_id), SNDMORE) # id (random)
         self.send(data, 0)    # data
-
         if cb:
             self._subscriptions[tx_id] = cb
         return tx_id
